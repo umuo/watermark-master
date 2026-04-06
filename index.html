@@ -136,27 +136,7 @@
         }
       }
     </script>
-    <script
-      defer
-      data-domain="jiashuiyin.com"
-      src="https://data.tuocibao.com/js/script.js"
-    ></script>
     <meta name="robots" content="index, follow" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4WH6LLGNFX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-4WH6LLGNFX", {
-        'send_page_view': false  // 延迟发送页面浏览
-      });
-    </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4562467673017981"
-    crossorigin="anonymous">
-    </script>
     <!-- 修改 JavaScript 加载 -->
     <script>
       // 内联关键的初始化代码
@@ -165,22 +145,14 @@
         if (pageLoader) pageLoader.style.display = 'none';
       });
     </script>
+    <!-- 本地依赖库 -->
+    <script src="libs/heic2any.min.js"></script>
+    <script src="libs/jszip.min.js"></script>
+    <script src="libs/FileSaver.min.js"></script>
     <!-- 延迟加载非关键脚本 -->
     <script src="i18n.js" type="module" defer></script>
     <script src="script.js" type="module" defer></script>
-    <!-- 优化 Google Analytics 加载 -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-4WH6LLGNFX', {
-        'send_page_view': false,
-        'transport_type': 'beacon'
-      });
-    </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4WH6LLGNFX"></script>
-    <!-- 异步加载 AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4562467673017981" crossorigin="anonymous"></script>
+
     <!-- CSS 加载失败的回退方案 -->
     <script>
       // 如果CSS加载失败，使用回退方案
@@ -296,7 +268,7 @@
             <input
               id="imageInput"
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               multiple
               class="hidden"
             />

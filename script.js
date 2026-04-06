@@ -1,6 +1,6 @@
 import { translations, setLanguage, updateURL, currentLang } from './i18n.js';
-import JSZip from 'https://jspm.dev/jszip';
-import FileSaver from 'https://jspm.dev/file-saver';
+const JSZip = window.JSZip;
+const FileSaver = { saveAs: window.saveAs };
 
 const imageInput = document.getElementById('imageInput');
 const watermarkText = document.getElementById('watermarkText');
@@ -120,12 +120,6 @@ function initializeColorInput() {
 // 将所有初始化和事件监听器的设置放个函数中
 async function initialize() {
     try {
-        // 等待所有模块加载完成
-        await Promise.all([
-            import('https://jspm.dev/jszip'),
-            import('https://jspm.dev/file-saver')
-        ]);
-
         initializeColorInput();
         initializeFileInput();
         watermarkColor.addEventListener('input', updateColorPreview);
@@ -445,14 +439,53 @@ async function processImages() {
     }
 }
 
+// HEIC 格式检测和转换
+function isHeicFile(file) {
+    const name = (file.name || '').toLowerCase();
+    const type = (file.type || '').toLowerCase();
+    return name.endsWith('.heic') || name.endsWith('.heif') ||
+           type === 'image/heic' || type === 'image/heif';
+}
+
+async function convertHeicFiles(files) {
+    const converted = [];
+    for (const file of files) {
+        if (isHeicFile(file)) {
+            try {
+                console.log('Converting HEIC file:', file.name);
+                const jpegBlob = await heic2any({
+                    blob: file,
+                    toType: 'image/jpeg',
+                    quality: 0.92
+                });
+                // heic2any 可能返回数组或单个 Blob
+                const blob = Array.isArray(jpegBlob) ? jpegBlob[0] : jpegBlob;
+                // 创建新的 File 对象，保留原始文件名但改后缀
+                const newName = (file.name || 'image').replace(/\.(heic|heif)$/i, '.jpg');
+                const newFile = new File([blob], newName, { type: 'image/jpeg' });
+                converted.push(newFile);
+            } catch (err) {
+                console.error('HEIC conversion failed:', err);
+                ToastManager.showError(`HEIC 转换失败: ${file.name}`);
+            }
+        } else {
+            converted.push(file);
+        }
+    }
+    return converted;
+}
+
 // 添加事件监听
 processButton.addEventListener('click', processImages);
 
 function processImage(file, existingFilenames = {}) {
     console.log('Processing image:', file.name);
+    return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
     reader.onload = function(e) {
         const img = new Image();
+        img.onerror = () => reject(new Error('Failed to load image'));
         img.onload = function() {
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
@@ -467,11 +500,12 @@ function processImage(file, existingFilenames = {}) {
             const position = watermarkPosition.value;
             const density = position === 'tile' ? parseInt(watermarkDensity.value) : 1;
             const color = watermarkColor.value;
-            const size = parseInt(watermarkSize.value);
+            let size = parseInt(watermarkSize.value);
             const opacity = parseInt(document.getElementById('watermarkOpacity').value) / 100;
 
             if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
                 alert(translations[currentLang].invalidColorValue);
+                resolve();
                 return;
             }
 
@@ -490,6 +524,27 @@ function processImage(file, existingFilenames = {}) {
                 const cellWidth = canvas.width / density;
                 const cellHeight = canvas.height / density;
 
+                // 自适应字体大小：确保水印文字不超过 cell 尺寸的合理比例
+                const maxCellDim = Math.min(cellWidth, cellHeight);
+                let adaptedSize = size;
+                // 测量文字宽度，如果超出 cell 的 80% 则缩小
+                const tileLines = text.split('\n');
+                const maxLineText = tileLines.reduce((a, b) => a.length >= b.length ? a : b, '');
+                ctx.font = `${adaptedSize}px Arial`;
+                let textWidth = ctx.measureText(maxLineText).width;
+                const maxAllowed = maxCellDim * 0.8;
+                if (textWidth > maxAllowed || adaptedSize > maxAllowed) {
+                    adaptedSize = Math.min(adaptedSize, maxAllowed);
+                    // 按文字宽度比例进一步缩放
+                    ctx.font = `${adaptedSize}px Arial`;
+                    textWidth = ctx.measureText(maxLineText).width;
+                    if (textWidth > maxAllowed) {
+                        adaptedSize = adaptedSize * (maxAllowed / textWidth);
+                    }
+                }
+                adaptedSize = Math.max(adaptedSize, 8); // 最小不低于 8px
+                ctx.font = `${adaptedSize}px Arial`;
+
                 for (let i = 0; i < density; i++) {
                     for (let j = 0; j < density; j++) {
                         const x = (i + 0.5) * cellWidth;
@@ -506,7 +561,7 @@ function processImage(file, existingFilenames = {}) {
                             ctx.fillText(text, 0, 0);
                         } else {
                             // 多行文本需要计算行高
-                            const lineHeight = size * 1.2;
+                            const lineHeight = adaptedSize * 1.2;
                             lines.forEach((line, index) => {
                                 const yOffset = (index - (lines.length - 1) / 2) * lineHeight;
                                 ctx.fillText(line, 0, yOffset);
@@ -517,7 +572,19 @@ function processImage(file, existingFilenames = {}) {
                     }
                 }
             } else if (position === 'center') {
-                // 居中水印
+                // 居中水印 - 自适应字体大小
+                const maxDim = Math.min(canvas.width, canvas.height);
+                let adaptedSize = Math.min(size, maxDim * 0.5);
+                const centerLines = text.split('\n');
+                const maxLineText = centerLines.reduce((a, b) => a.length >= b.length ? a : b, '');
+                ctx.font = `${adaptedSize}px Arial`;
+                let textWidth = ctx.measureText(maxLineText).width;
+                if (textWidth > canvas.width * 0.9) {
+                    adaptedSize = adaptedSize * (canvas.width * 0.9 / textWidth);
+                }
+                adaptedSize = Math.max(adaptedSize, 8);
+                ctx.font = `${adaptedSize}px Arial`;
+
                 const x = canvas.width / 2;
                 const y = canvas.height / 2;
                 
@@ -528,14 +595,26 @@ function processImage(file, existingFilenames = {}) {
                     ctx.fillText(text, x, y);
                 } else {
                     // 多行文本需要计算行高
-                    const lineHeight = size * 1.2;
+                    const lineHeight = adaptedSize * 1.2;
                     lines.forEach((line, index) => {
                         const yOffset = (index - (lines.length - 1) / 2) * lineHeight;
                         ctx.fillText(line, x, y + yOffset);
                     });
                 }
             } else {
-                // 角落水印逻辑
+                // 角落水印逻辑 - 自适应字体大小
+                const maxDim = Math.min(canvas.width, canvas.height);
+                let adaptedSize = Math.min(size, maxDim * 0.3);
+                const cornerLines = text.split('\n');
+                const maxLineText = cornerLines.reduce((a, b) => a.length >= b.length ? a : b, '');
+                ctx.font = `${adaptedSize}px Arial`;
+                let textWidth = ctx.measureText(maxLineText).width;
+                if (textWidth > canvas.width * 0.8) {
+                    adaptedSize = adaptedSize * (canvas.width * 0.8 / textWidth);
+                }
+                adaptedSize = Math.max(adaptedSize, 8);
+                ctx.font = `${adaptedSize}px Arial`;
+
                 const padding = 15;
                 let x, y;
 
@@ -573,7 +652,7 @@ function processImage(file, existingFilenames = {}) {
                     ctx.fillText(text, x, y);
                 } else {
                     // 多行文本需要计算行高和位置
-                    const lineHeight = size * 1.2;
+                    const lineHeight = adaptedSize * 1.2;
                     if (position.startsWith('bottom')) {
                         lines.reverse().forEach((line, index) => {
                             ctx.fillText(line, x, y - index * lineHeight);
@@ -663,10 +742,12 @@ function processImage(file, existingFilenames = {}) {
 
             previewItem.appendChild(buttonGroup);
             previewContainer.appendChild(previewItem);
+            resolve();
         }
         img.src = e.target.result;
     }
     reader.readAsDataURL(file);
+    }); // 关闭 Promise
 }
 
 // 添加这个函数
@@ -709,15 +790,20 @@ function initializeFileInput() {
 }
 
 // 修改 handleFileSelect 函数
-function handleFileSelect(e) {
-    const files = e.target.files;
-    uploadedFiles = uploadedFiles.concat(Array.from(files)); // 使用 concat 来添加新文件
+async function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    const hasHeic = files.some(f => isHeicFile(f));
+    if (hasHeic) {
+        ToastManager.show(translations[currentLang].convertingHeic || '正在转换 HEIC 格式图片...', 'info', 5000);
+    }
+    const convertedFiles = await convertHeicFiles(files);
+    uploadedFiles = uploadedFiles.concat(convertedFiles);
     updateFileNameDisplay();
     updateImagePreview();
 }
 
 // 修改 handlePaste 函数
-function handlePaste(e) {
+async function handlePaste(e) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -725,13 +811,20 @@ function handlePaste(e) {
     const newFiles = [];
 
     for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
+        if (items[i].type.indexOf('image') !== -1 || 
+            items[i].type === 'image/heic' || 
+            items[i].type === 'image/heif') {
             const blob = items[i].getAsFile();
             newFiles.push(blob);
         }
     }
 
-    uploadedFiles = uploadedFiles.concat(newFiles); // 使用 concat 来添加新文件
+    const hasHeic = newFiles.some(f => isHeicFile(f));
+    if (hasHeic) {
+        ToastManager.show(translations[currentLang].convertingHeic || '正在转换 HEIC 格式图片...', 'info', 5000);
+    }
+    const convertedFiles = await convertHeicFiles(newFiles);
+    uploadedFiles = uploadedFiles.concat(convertedFiles);
     updateFileNameDisplay();
     updateImagePreview();
 }
@@ -1020,7 +1113,9 @@ function handleDrop(e) {
     e.stopPropagation();
     this.classList.remove('drag-over');
 
-    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+        file.type.startsWith('image/') || isHeicFile(file)
+    );
     
     if (files.length === 0) {
         // 如果没有图片文件，显示提示
@@ -1036,7 +1131,6 @@ function handleDrop(e) {
     }
 
     const filesToAdd = files.slice(0, remainingSlots);
-    uploadedFiles = uploadedFiles.concat(filesToAdd);
     
     if (files.length > remainingSlots) {
         // 如果有文件被忽略，显示提示
@@ -1047,6 +1141,15 @@ function handleDrop(e) {
         );
     }
 
-    updateFileNameDisplay();
-    updateImagePreview();
+    // 异步处理 HEIC 转换
+    (async () => {
+        const hasHeic = filesToAdd.some(f => isHeicFile(f));
+        if (hasHeic) {
+            ToastManager.show(translations[currentLang].convertingHeic || '正在转换 HEIC 格式图片...', 'info', 5000);
+        }
+        const convertedFiles = await convertHeicFiles(filesToAdd);
+        uploadedFiles = uploadedFiles.concat(convertedFiles);
+        updateFileNameDisplay();
+        updateImagePreview();
+    })();
 }

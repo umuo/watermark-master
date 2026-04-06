@@ -30,6 +30,6 @@ http.createServer((req, res) => {
             res.end(data);
         }
     });
-}).listen(8080, () => {
-    console.log('Server is running on http://localhost:8080');
+}).listen(8080, '0.0.0.0', () => {
+    console.log('Server is running on http://0.0.0.0:8080');
 });
