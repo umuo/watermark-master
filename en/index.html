@@ -148,6 +148,8 @@
         }
       })();
     </script>
+    <!-- Local libraries -->
+    <link rel="stylesheet" href="../libs/tailwind.min.css">
   </head>
   <body class="bg-gray-100 font-sans page-initializing">
     <!-- Initial loading mask -->
@@ -229,7 +231,7 @@
             Quickly add custom watermarks to images, very simple to use
           </p>
         </div>
-        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="glass-panel px-6 sm:px-8 pt-6 pb-8 mb-4">
           <div class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -288,8 +290,8 @@
               style="min-height: 38px; line-height: 22px;"
             ></textarea>
           </div>
-          <div class="mb-4 flex flex-wrap -mx-2">
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+          <div class="mb-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkPosition"
@@ -321,7 +323,7 @@
                 </option>
               </select>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkDensity"
@@ -340,7 +342,7 @@
                 <option value="6" data-i18n="sixBySix">6x6 (36 watermarks)</option>
               </select>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full col-span-2 sm:col-span-1">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkColor"
@@ -372,7 +374,7 @@
                 />
               </div>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkSize"
@@ -380,16 +382,19 @@
               >
                 Font Size (Px)
               </label>
-              <input
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                id="watermarkSize"
-                type="number"
-                value="20"
-                min="1"
-                max="200"
-              />
+              <div class="relative">
+                <input
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                  id="watermarkSize"
+                  type="number"
+                  min="10"
+                  max="100"
+                  value="20"
+                  step="1"
+                />
+              </div>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkOpacity"
@@ -397,31 +402,36 @@
               >
                 Opacity(%)
               </label>
-              <input
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                id="watermarkOpacity"
-                type="number"
-                value="80"
-                min="0"
-                max="100"
-              />
+              <div class="relative">
+                <input
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                  id="watermarkOpacity"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value="80"
+                  step="1"
+                />
+              </div>
             </div>
           </div>
-          <div class="flex justify-center space-x-4 mt-6">
-            <button
-              id="processButton"
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center"
-              data-i18n="processImages"
-            >
-              Process Images
-            </button>
-            <button
-              id="resetButton"
-              class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              data-i18n="resetButton"
-            >
-              Reset
-            </button>
+          <div class="flex items-center justify-center flex-col">
+            <div class="flex w-full space-x-2 button-container">
+              <button
+                id="processButton"
+                class="process-button text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center justify-center"
+                data-i18n="processImages"
+              >
+                Process Images
+              </button>
+              <button
+                id="resetButton"
+                class="reset-button text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                data-i18n="resetButton"
+              >
+                Reset
+              </button>
+            </div>
           </div>
           <!-- Add loading indicator -->
           <div id="processingLoader" class="hidden mt-4 text-center">

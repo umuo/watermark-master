@@ -146,6 +146,7 @@
       });
     </script>
     <!-- 本地依赖库 -->
+    <link rel="stylesheet" href="libs/tailwind.min.css">
     <script src="libs/heic2any.min.js"></script>
     <script src="libs/jszip.min.js"></script>
     <script src="libs/FileSaver.min.js"></script>
@@ -256,7 +257,7 @@
             快速为图片添加自定义水印，非常简单
           </p>
         </div>
-        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="glass-panel px-6 sm:px-8 pt-6 pb-8 mb-4">
           <div class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -318,8 +319,8 @@
               style="min-height: 38px; line-height: 22px;"
             ></textarea>
           </div>
-          <div class="mb-4 flex flex-wrap -mx-2">
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+          <div class="mb-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkPosition"
@@ -351,7 +352,7 @@
                 </option>
               </select>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkDensity"
@@ -372,7 +373,7 @@
                 <option value="6" data-i18n="sixBySix">6x6 (36个水印)</option>
               </select>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full col-span-2 sm:col-span-1">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkColor"
@@ -404,7 +405,7 @@
                 />
               </div>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkSize"
@@ -424,7 +425,7 @@
                 />
               </div>
             </div>
-            <div class="w-full sm:w-1/5 px-2 mb-4 sm:mb-0">
+            <div class="w-full">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
                 for="watermarkOpacity"

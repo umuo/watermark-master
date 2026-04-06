@@ -1,26 +1,45 @@
-@import url('https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/tailwindcss/2.2.19/tailwind.min.css');
+/* 移除在线的 Tailwind 引入，改由 HTML 内引入本地文件 */
+/* @import url('https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/tailwindcss/2.2.19/tailwind.min.css'); */
 
 body {
-    background-color: #f3f4f6;
+    /* 现代平滑多彩渐变色背景 */
+    background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #1f2937;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px; /* 稍微放大数据以免过宽拥挤 */
     margin: 0 auto;
 }
 
-.preview-item {
-    background-color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border-radius: 0.5rem;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
+/* Glassmorphism 全局定义 - 覆盖现有的 bg-white 表现 */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1) !important;
+    border-radius: 1rem !important; /* 更大更圆润的卡片 */
     transition: all 0.3s ease;
 }
 
+.preview-item {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 1rem;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .preview-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 20px 0 rgba(31, 38, 135, 0.1);
 }
 
 .preview-item img {
@@ -31,16 +50,18 @@ body {
 
 .preview-item a {
     display: block;
-    background-color: #3b82f6;
+    background: linear-gradient(to right, #3b82f6, #60a5fa);
     color: white;
     text-align: center;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
     text-decoration: none;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .preview-item a:hover {
-    background-color: #2563eb;
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+    transform: scale(1.02);
 }
 
 #colorPreview {
@@ -176,7 +197,18 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0; /* 这行很重要，允许按钮在必要时缩小 */
+  min-width: 0;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
+  border: none;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.process-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
 }
 
 .reset-button {
@@ -184,7 +216,18 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0; /* 这行很重要，允许按钮在必要时缩小 */
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.5) !important;
+  color: #4b5563 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.reset-button:hover {
+  background: rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-1px);
 }
 
 /* 针对移动设备的样式 */
@@ -230,31 +273,32 @@ select:disabled {
 
 .download-button, .copy-button {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.6rem;
   text-align: center;
   color: white;
   text-decoration: none;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .download-button {
-  background-color: #3b82f6;
-  border-radius: 0.25rem 0 0 0.25rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 0.5rem 0 0 0.5rem;
 }
 
 .copy-button {
-  background-color: #1f2937; /* 黑色背景 */
-  border-radius: 0 0.25rem 0.25rem 0;
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+  border-radius: 0 0.5rem 0.5rem 0;
 }
 
 .download-button:hover {
-  background-color: #2563eb;
+  filter: brightness(1.1);
 }
 
 .copy-button:hover {
-  background-color: #111827; /* 深一点的黑色 */
+  filter: brightness(1.1);
 }
 
 /* 删除复制按钮的左边距 */
