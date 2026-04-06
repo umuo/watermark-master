@@ -480,11 +480,11 @@ processButton.addEventListener('click', processImages);
 function processImage(file, existingFilenames = {}) {
     console.log('Processing image:', file.name);
     return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(reader.error);
-    reader.onload = function(e) {
         const img = new Image();
-        img.onerror = () => reject(new Error('Failed to load image'));
+        img.onerror = () => {
+            URL.revokeObjectURL(img.src);
+            reject(new Error('Failed to load image'));
+        };
         img.onload = function() {
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
@@ -741,11 +741,15 @@ function processImage(file, existingFilenames = {}) {
 
             previewItem.appendChild(buttonGroup);
             previewContainer.appendChild(previewItem);
+            
+            // 重要：清理内存！防止 iOS 下二次创建巨大 Canvas 导致 OOM（内存溢出）白屏
+            URL.revokeObjectURL(img.src);
+            canvas.width = 0;
+            canvas.height = 0;
+            
             resolve();
         }
-        img.src = e.target.result;
-    }
-    reader.readAsDataURL(file);
+        img.src = URL.createObjectURL(file);
     }); // 关闭 Promise
 }
 
