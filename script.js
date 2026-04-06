@@ -78,8 +78,8 @@ const ToastManager = {
         this.show(message, 'warning', 3000, true, targetElement);
     },
     
-    showError(message, targetElement = null) {
-        this.show(message, 'error', 3000, true, targetElement);
+    showError(message, duration = 4000, targetElement = null) {
+        this.show(message, 'error', duration, true, targetElement);
     }
 };
 
@@ -453,20 +453,19 @@ async function convertHeicFiles(files) {
         if (isHeicFile(file)) {
             try {
                 console.log('Converting HEIC file:', file.name);
-                const jpegBlob = await heic2any({
+                const blob = await HeicTo({
                     blob: file,
-                    toType: 'image/jpeg',
+                    type: 'image/jpeg',
                     quality: 0.92
                 });
-                // heic2any 可能返回数组或单个 Blob
-                const blob = Array.isArray(jpegBlob) ? jpegBlob[0] : jpegBlob;
                 // 创建新的 File 对象，保留原始文件名但改后缀
                 const newName = (file.name || 'image').replace(/\.(heic|heif)$/i, '.jpg');
                 const newFile = new File([blob], newName, { type: 'image/jpeg' });
                 converted.push(newFile);
             } catch (err) {
-                console.error('HEIC conversion failed:', err);
-                ToastManager.showError(`HEIC 转换失败: ${file.name}`);
+                console.error('HEIC conversion failed for', file.name, ':', err);
+                // 使用新的本地化翻译予以友好提示
+                ToastManager.showError(translations[currentLang].heicFailed || `HEIC 转换失败: ${file.name}`);
             }
         } else {
             converted.push(file);

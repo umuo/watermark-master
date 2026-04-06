@@ -92,6 +92,7 @@ const translations = {
         noValidImages: '请拖入图片文件',
         maxImagesReached: '最多只能上传20张图片',
         someImagesIgnored: '已添加 {0} 张图片，{1} 张因超出限制而忽略',
+        heicFailed: '部分新版 HEIC/HEIF 图片可能受浏览器限制无法离线转换，如果转换失败或出现不兼容，请在相册中保存为 JPG 后再试。',
     },
     'en': {
         title: 'Batch Image Watermark Tool',
@@ -184,6 +185,7 @@ const translations = {
         noValidImages: 'Please drag image files',
         maxImagesReached: 'Maximum 20 images allowed',
         someImagesIgnored: 'Added {0} images, {1} ignored due to limit',
+        heicFailed: 'Some newer HEIC formats might not be supported fully by offline browser converters. Consider saving as JPG first if transformation fails.',
     }
 };
 
